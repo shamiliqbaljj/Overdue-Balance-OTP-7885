@@ -32,30 +32,7 @@ define(['N/email', 'N/record', 'N/runtime', 'N/url', 'N/search', 'N/ui/message']
  * @param{record} record
  */
     (email, record, runtime, url, search, message) => {
-        /**
-         * Defines the function definition that is executed before record is loaded.
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.newRecord - New record
-         * @param {string} scriptContext.type - Trigger type; use values from the context.UserEventType enum
-         * @param {Form} scriptContext.form - Current form
-         * @param {ServletRequest} scriptContext.request - HTTP request information sent from the browser for a client action only.
-         * @since 2015.2
-         */
-        const beforeLoad = (scriptContext) => {
-
-        }
-
-        /**
-         * Defines the function definition that is executed before record is submitted.
-         * @param {Object} scriptContext
-         * @param {Record} scriptContext.newRecord - New record
-         * @param {Record} scriptContext.oldRecord - Old record
-         * @param {string} scriptContext.type - Trigger type; use values from the context.UserEventType enum
-         * @since 2015.2
-         */
-        const beforeSubmit = (scriptContext) => {
-
-        }
+       
 
         /**
          * Defines the function definition that is executed after record is submitted.
@@ -89,27 +66,71 @@ define(['N/email', 'N/record', 'N/runtime', 'N/url', 'N/search', 'N/ui/message']
             return true; // Assuming saveRecord should return true to allow record save
         }
 
-        return {beforeLoad, beforeSubmit, afterSubmit}
+        return {afterSubmit}
 
 
 
-
+/**
+ * Loads an employee record based on the provided employee ID.
+ *
+ * @param {number|string} employeeId - The internal ID of the employee to load.
+ * @returns {Record} The loaded employee record.
+ * @throws {Error} Throws an error if the employee record cannot be loaded.
+ */
 
         function loadEmployee(employeeId) {
+        try
+        {
             return record.load({
                 type: record.Type.EMPLOYEE,
                 id: employeeId
             });
         }
+        catch(error)
+        {
+            log.error(error);
+        }
+        }
+
+
+
+/**
+ * Loads a customer record based on the provided customer ID.
+ *
+ * @param {number|string} custId - The internal ID of the customer to load.
+ * @returns {Record|null} The loaded customer record, or null if the record could not be loaded.
+ * @throws {Error} Throws an error if there is a problem loading the customer record.
+ */
+
         
         function loadCustomer(custId) {
+        try
+        {
             return record.load({
                 type: record.Type.CUSTOMER,
                 id: custId
             });
         }
+        catch(error)
+        {
+            log.error(error);
+        }
+        }
         
+
+/**
+ * Sends an email notification about a newly created sales order.
+ *
+ * @param {string} supervisorEmail - The email address of the supervisor to receive the notification.
+ * @param {number|string} authorId - The internal ID of the user sending the email.
+ * @param {string} salesOrderUrl - The URL link to the created sales order.
+ * @returns {void}
+ * @throws {Error} Throws an error if the email could not be sent.
+ */
+
         function sendEmail(supervisorEmail, authorId, salesOrderUrl) {
+        try
+        {
             email.send({
                 author: authorId, // Use the current user ID as the author
                 recipients: supervisorEmail,
@@ -118,16 +139,50 @@ define(['N/email', 'N/record', 'N/runtime', 'N/url', 'N/search', 'N/ui/message']
                 Click on the link: ${salesOrderUrl}`,
             });
         }
+        catch(error)
+        {
+            log.error(error);        }
+        }
+
+
+/**
+ * Displays a message to the user using the NetSuite message UI.
+ *
+ * @param {string} title - The title of the message to be displayed.
+ * @param {string} msg - The content of the message to be displayed.
+ * @returns {void}
+ * @throws {Error} Throws an error if the message cannot be created or displayed.
+ */
+
+
         
         function showMessage(title, msg) {
+        try
+        {
             message.create({
                 title: title,
                 message: msg,
                 type: message.Type.ERROR
             }).show();
         }
+        catch(error)
+        {
+            log.error(error);
+        }
+        }
+
+/**
+ * Handles the process of notifying a supervisor about a sales order with an overdue balance.
+ *
+ * @param {number|string} salesRepId - The internal ID of the sales representative associated with the sales order.
+ * @param {string} salesOrderUrl - The URL of the created sales order to include in the notification email.
+ * @returns {void}
+ * @throws {Error} Throws an error if there is an issue loading employee records or sending the email.
+ */
         
         function handleOverdueBalance(salesRepId, salesOrderUrl) {
+        try
+        {
             let empRecord = loadEmployee(salesRepId);
             let supervisorId = empRecord.getValue('supervisor');
         
@@ -144,6 +199,11 @@ define(['N/email', 'N/record', 'N/runtime', 'N/url', 'N/search', 'N/ui/message']
             } else {
                 showMessage("Error", "Supervisor ID is missing.");
             }
+        }
+        catch(error)
+        {
+            log.error(error);
+        }
         }
         
 
