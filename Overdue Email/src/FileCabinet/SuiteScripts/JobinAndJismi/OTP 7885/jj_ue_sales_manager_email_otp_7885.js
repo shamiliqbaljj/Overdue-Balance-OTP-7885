@@ -43,6 +43,9 @@ define(['N/email', 'N/record', 'N/runtime', 'N/url', 'N/search', 'N/ui/message']
          * @since 2015.2
          */
         const afterSubmit = (scriptContext) => {
+
+        try
+        {
              
             if (scriptContext.type !== scriptContext.UserEventType.CREATE) {
                 return;
@@ -64,6 +67,11 @@ define(['N/email', 'N/record', 'N/runtime', 'N/url', 'N/search', 'N/ui/message']
         
     
             return true; // Assuming saveRecord should return true to allow record save
+        }
+        catch(error)
+        {
+            log.error(error);
+        }
         }
 
         return {afterSubmit}
